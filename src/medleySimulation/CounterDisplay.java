@@ -11,7 +11,10 @@ public class CounterDisplay  implements Runnable {
 	
 	private FinishCounter results;
 	private JLabel win;
-		
+	
+   CounterDisplay()
+   {
+   }
 	CounterDisplay(JLabel w, FinishCounter score) {
         this.win=w;
         this.results=score;
