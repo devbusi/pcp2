@@ -185,6 +185,8 @@ public class Swimmer extends Thread {
 			
 			if(swimStroke.order==4) {
 				finish.finishRace(ID, team.getNumTeam()); // fnishline
+				//bonus
+				MedleySimulation.recordFinish(team.getNumTeam());
 			}
 			else {
 				//System.out.println("Thread "+this.ID + " done " + currentBlock.getX()  + " " +currentBlock.getY() );			

@@ -3,14 +3,15 @@
 package medleySimulation;
 
 import javax.swing.*;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.CountDownLatch;
 
 public class MedleySimulation {
 	static final int numTeams=10;
-	
+	private static List<Integer> finishers = new ArrayList<>();
    	static int frameX=300; //frame width
 	static int frameY=600;  //frame height
 	static int yLimit=400;
@@ -113,5 +114,27 @@ public class MedleySimulation {
       	for (int i=0;i<numTeams;i++) {
 			teams[i].start();
 		}
+		displayResults();
 	}
+
+	//bonus
+	private static void displayResults() {
+        synchronized (finishers ) {
+            if (finishers .size() >= 3) {
+                System.out.println("1st place: Team " + finishers .get(0));
+                System.out.println("2nd place: Team " + finishers .get(1));
+                System.out.println("3rd place: Team " + finishers .get(2));
+            } else {
+                System.out.println("Race is not completed yet ");
+            }
+        }
+    }
+//records finishers
+	public static synchronized void recordFinish(int teamNumber) {
+        
+        if (!finishers.contains(teamNumber)) {
+            finishers.add(teamNumber);
+            System.out.println("Team " + teamNumber + " finished. Current finish order: " + finishers);
+        }
+    }
 }
