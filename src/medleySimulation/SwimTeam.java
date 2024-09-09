@@ -23,7 +23,7 @@ public class SwimTeam extends Thread {
 		for(int i=teamNo*sizeOfTeam,s=0;i<((teamNo+1)*sizeOfTeam); i++,s++) { //initialise swimmers in team
 			locArr[i]= new PeopleLocation(i,strokes[s].getColour());
 	      	int speed=(int)(Math.random() * (3)+30); //range of speeds 
-			swimmers[s] = new Swimmer(i,teamNo,locArr[i],finish,speed,strokes[s]); //hardcoded speed for now
+			swimmers[s] = new Swimmer(i,this,locArr[i],finish,speed,strokes[s]); //hardcoded speed for now
 		}
 	}
 	
@@ -42,6 +42,17 @@ public class SwimTeam extends Thread {
 			e.printStackTrace();
 		}
 	}
-}
+
+		public int getNumTeam()
+			{
+				return this.teamNo;
+			}
+		
+		public Swimmer getPrevSwimmer(int i) {
+				return swimmers[i - 1];
+			}
+		}
+	
+
 	
 

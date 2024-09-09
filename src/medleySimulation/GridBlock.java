@@ -37,21 +37,22 @@ public class GridBlock {
 	}
 		
 	
-	//release a block
-	public  void release() {
+	// method changed to synchornized method
+	public synchronized void release() {
 		isOccupied= -1;
+		notifyAll();
 	}
 	
 
-	//is a bloc already occupied?
-	public  boolean occupied() {
+	// method changed to synchornized method
+	public synchronized boolean occupied() {
 		if(isOccupied==-1) return false;
 		return true;
 	}
 	
 	
-	//is a start block
-	public  boolean isStart() {
+	// method changed to synchornized method
+	public synchronized boolean isStart() {
 		return isStart;	
 	}
 

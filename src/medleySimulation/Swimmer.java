@@ -6,6 +6,8 @@ package medleySimulation;
 import java.awt.Color;
 
 import java.util.Random;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 
 
@@ -21,8 +23,9 @@ public class Swimmer extends Thread {
 	
 	private PeopleLocation myLocation;
 	private int ID; //thread ID 
-	private int team; // team ID
+	private SwimTeam team; // team ID changed to SwimTeam for functionality
 	private GridBlock start;
+	private static CyclicBarrier Barrier = new CyclicBarrier(10);
 
 	public enum SwimStroke { 
 		Backstroke(1,2.5,Color.black),
@@ -47,13 +50,13 @@ public class Swimmer extends Thread {
 	    private final SwimStroke swimStroke;
 	
 	//Constructor
-	Swimmer( int ID, int t, PeopleLocation loc, FinishCounter f, int speed, SwimStroke s) {
+	Swimmer( int ID, SwimTeam t, PeopleLocation loc, FinishCounter f, int speed, SwimStroke s) {
 		this.swimStroke = s;
 		this.ID=ID;
 		movingSpeed=speed; //range of speeds for swimmers
 		this.myLocation = loc;
 		this.team=t;
-		start = stadium.returnStartingBlock(team);
+		start = stadium.returnStartingBlock(team.getNumTeam());
 		finish=f;
 		rand=new Random();
 	}
@@ -142,15 +145,46 @@ public class Swimmer extends Thread {
 			//Swimmer arrives
 			sleep(movingSpeed+(rand.nextInt(10))); //arriving takes a while
 			myLocation.setArrived();
+
+			//ensures next swimmer waits for completion of previous swimmer leg
+			if(this.swimStroke.order !=1)
+			{
+				int pre = swimStroke.order -1;
+
+				synchronized(team)
+				{
+					Swimmer prevSwimmer = team.getPrevSwimmer(pre);
+					while(prevSwimmer.currentBlock == null)
+					{
+						team.wait();
+					}
+
+				}
+			}
 			enterStadium();	
-			
+			synchronized(team)
+			{
+				team.notifyAll();
+			}
 			goToStartingBlocks();
-								
-			dive(); 
+			//swimmers only jump when all swimmers are at starting line initially
+			try{
+				Barrier.await();
+			}
+			catch (InterruptedException | BrokenBarrierException e){
+				System.out.println(e);
+			}
+
+			synchronized(team)
+			{
+				dive(); 
+				swimRace();
+			}
+			
 				
-			swimRace();
+			
 			if(swimStroke.order==4) {
-				finish.finishRace(ID, team); // fnishline
+				finish.finishRace(ID, team.getNumTeam()); // fnishline
 			}
 			else {
 				//System.out.println("Thread "+this.ID + " done " + currentBlock.getX()  + " " +currentBlock.getY() );			

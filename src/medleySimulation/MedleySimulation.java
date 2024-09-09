@@ -6,6 +6,7 @@ import javax.swing.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.CountDownLatch;
 
 public class MedleySimulation {
 	static final int numTeams=10;
@@ -25,7 +26,7 @@ public class MedleySimulation {
 	
 	static FinishCounter finishLine; //records who won
 	static CounterDisplay counterDisplay ; //threaded display of counter
-	
+	static CountDownLatch Latch = new CountDownLatch(1);// added latch
 
 	//Method to setup all the elements of the GUI
 	public static void setupGUI(int frameX,int frameY) {
@@ -59,7 +60,7 @@ public class MedleySimulation {
 		// add the listener to the jbutton to handle the "pressed" event
 		startB.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e)  {
-			    	  //does nothing - fix this 	  
+			    	  Latch.countDown();	//countdown for swimmer arrival  
 		    }
 		   });
 	
@@ -106,6 +107,8 @@ public class MedleySimulation {
       	Thread results = new Thread(counterDisplay);  
       	results.start();
       	
+		//stops swimmers from moving before start button prompts
+		Latch.await();
       	//start teams, which start swimmers.
       	for (int i=0;i<numTeams;i++) {
 			teams[i].start();
